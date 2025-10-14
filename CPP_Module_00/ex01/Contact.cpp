@@ -18,7 +18,7 @@ void	Contact::setContact()
 	std::getline(std::cin, lastName);
 	std::cout << "Nick name: ";
 	std::getline(std::cin, nickName);
-	std::cout << "Phone number";
+	std::cout << "Phone number: ";
 	std::getline(std::cin, phoneNumber);
 	std::cout << "Darkest secret: ";
 	std::getline(std::cin, darkestSecret);
