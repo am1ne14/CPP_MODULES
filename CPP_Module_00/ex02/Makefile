@@ -1,12 +1,12 @@
 NAME = account
-CXX = g++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+C++ = g++
+C++_FLAGS = -Wall -Wextra -Werror -std=c++98
 
 SRC = Account.cpp tests.cpp
 OBJ = $(SRC:.cpp=.o)
 
 $(NAME): $(OBJ)
-	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJ)
+	$(C++) $(C++_FLAGS) -o $(NAME) $(OBJ)
 
 all: $(NAME)
 
