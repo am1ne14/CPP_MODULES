@@ -5,14 +5,11 @@ int main()
     ScavTrap aa("AA");
     aa.attack("target1");
     aa.guardGate();
-
-    ScavTrap bb = aa; // Copy
+    ScavTrap bb = aa;
     bb.attack("target2");
-
     ScavTrap cc("CC");
-    cc = aa; // Assignment
+    cc = aa;
     cc.attack("target3");
-
     return 0;
 }
 
