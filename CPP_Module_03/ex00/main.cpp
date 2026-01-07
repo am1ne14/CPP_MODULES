@@ -11,7 +11,6 @@ int main()
     aa.takeDamage(20);
     aa.beRepaired(5);
     ClapTrap cc("cc");
-    for (int i = 0; i <= 10; i++)
-        cc.attack("dd");
+    cc.attack("dd");
     return 0;
 }
