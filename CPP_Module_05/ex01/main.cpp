@@ -1,68 +1,51 @@
-#include "Bureacrat.hpp"
+#include "Bureaucrat.hpp"
+#include "Form.hpp"
 #include <iostream>
 
-static void testConstructor()
+static void testFormConstruction()
 {
-    std::cout << "\n[Constructor tests]" << std::endl;
-    try {
-        Bureaucrat a("Alice", 1);
-        Bureaucrat b("Bob", 150);
-        std::cout << a << std::endl;
-        std::cout << b << std::endl;
-    } catch (std::exception& e) {
-        std::cout << "Unexpected: " << e.what() << std::endl;
+    std::cout << "[Form construction]" << std::endl;
+    try
+    {
+        Form invalid("Invalid", 0, 10);
+        std::cout << invalid << std::endl;
+    }
+    catch (std::exception &e)
+    {
+        std::cout << "Form with sign grade 0 failed: " << e.what() << std::endl;
     }
 
-    try {
-        Bureaucrat bad1("BadLow", 151);
-        std::cout << bad1 << std::endl;
-    } catch (std::exception& e) {
-        std::cout << "Expected error (151): " << e.what() << std::endl;
+    try
+    {
+        Form invalid("Invalid", 10, 151);
+        std::cout << invalid << std::endl;
     }
-
-    try {
-        Bureaucrat bad2("BadHigh", 0);
-        std::cout << bad2 << std::endl;
-    } catch (std::exception& e) {
-        std::cout << "Expected error (0): " << e.what() << std::endl;
+    catch (std::exception &e)
+    {
+        std::cout << "Form with exec grade 151 failed: " << e.what() << std::endl;
     }
 }
 
-static void testIncrementDecrement()
+static void testSigning()
 {
-    std::cout << "\n[Increment/Decrement tests]" << std::endl;
+    std::cout << "\n[Signing tests]" << std::endl;
+    Bureaucrat boss("Boss", 1);
+    Bureaucrat intern("Intern", 150);
+    Form       contract("Contract", 50, 25);
 
-    try {
-        Bureaucrat top("Top", 1);
-        std::cout << top << std::endl;
-        top.incrementGrade();
-    } catch (std::exception& e) {
-        std::cout << "Expected increment error at 1: " << e.what() << std::endl;
-    }
+    std::cout << contract << std::endl;
+    intern.signForm(contract);
+    std::cout << contract << std::endl;
 
-    try {
-        Bureaucrat low("Low", 150);
-        std::cout << low << std::endl;
-        low.decrementGrade();
-    } catch (std::exception& e) {
-        std::cout << "Expected decrement error at 150: " << e.what() << std::endl;
-    }
+    boss.signForm(contract);
+    std::cout << contract << std::endl;
 
-    try {
-        Bureaucrat mid("Mid", 42);
-        std::cout << "Start: " << mid << std::endl;
-        mid.incrementGrade();
-        std::cout << "After increment: " << mid << std::endl;
-        mid.decrementGrade();
-        std::cout << "After decrement: " << mid << std::endl;
-    } catch (std::exception& e) {
-        std::cout << "Unexpected: " << e.what() << std::endl;
-    }
+    boss.signForm(contract);
 }
 
 int main()
 {
-    testConstructor();
-    testIncrementDecrement();
+    testFormConstruction();
+    testSigning();
     return 0;
 }
