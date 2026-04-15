@@ -1,12 +1,9 @@
 #include "AForm.hpp"
 #include "Bureaucrat.hpp"
 
-AForm::AForm() : _name("default"), _isSigned(false), _signGrade(150), _execGrade(150)
-{
-}
+AForm::AForm() : _name("default"), _isSigned(false), _signGrade(150), _execGrade(150) {}
 
-AForm::AForm(const std::string &name, int signGrade, int execGrade)
-    : _name(name), _isSigned(false), _signGrade(signGrade), _execGrade(execGrade)
+AForm::AForm(const std::string &name, int signGrade, int execGrade) : _name(name), _isSigned(false), _signGrade(signGrade), _execGrade(execGrade)
 {
     if (_signGrade < 1 || _execGrade < 1)
         throw GradeTooHighException();
@@ -14,10 +11,7 @@ AForm::AForm(const std::string &name, int signGrade, int execGrade)
         throw GradeTooLowException();
 }
 
-AForm::AForm(const AForm &other)
-    : _name(other._name), _isSigned(other._isSigned), _signGrade(other._signGrade), _execGrade(other._execGrade)
-{
-}
+AForm::AForm(const AForm &other) : _name(other._name), _isSigned(other._isSigned), _signGrade(other._signGrade), _execGrade(other._execGrade){}
 
 AForm &AForm::operator=(const AForm &other)
 {
@@ -26,9 +20,7 @@ AForm &AForm::operator=(const AForm &other)
     return *this;
 }
 
-AForm::~AForm()
-{
-}
+AForm::~AForm() {}
 
 const std::string &AForm::getName() const
 {
@@ -83,7 +75,15 @@ const char *AForm::FormNotSignedException::what() const throw()
 
 std::ostream &operator<<(std::ostream &os, const AForm &form)
 {
-    os << "AForm '" << form.getName() << "' [signed: " << (form.getIsSigned() ? "yes" : "no")
-       << ", sign grade: " << form.getSignGrade() << ", exec grade: " << form.getExecGrade() << "]";
+    os << "AForm '" << form.getName() << "' [signed: ";
+
+    if (form.getIsSigned())
+        os << "yes";
+    else
+        os << "no";
+
+    os << ", sign grade: " << form.getSignGrade()
+       << ", exec grade: " << form.getExecGrade() << "]";
+
     return os;
 }

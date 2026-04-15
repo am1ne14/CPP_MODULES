@@ -28,7 +28,7 @@ static void testConstructorBounds()
 static void testIncrementDecrement()
 {
     std::cout << "\n[Increment/Decrement]" << std::endl;
-    Bureaucrat mid("Alice", 42);
+    Bureaucrat mid("test", 42);
     std::cout << "Initial: " << mid << std::endl;
     mid.incrementGrade();
     std::cout << "After increment: " << mid << std::endl;
