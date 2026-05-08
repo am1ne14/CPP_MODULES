@@ -1,14 +1,5 @@
 #include "ScalarConverter.hpp"
 
-#include <cctype>
-#include <climits>
-#include <cmath>
-#include <cstdlib>
-#include <iomanip>
-#include <iostream>
-#include <limits>
-#include <sstream>
-
 enum LiteralType
 {
 	TYPE_INVALID,
