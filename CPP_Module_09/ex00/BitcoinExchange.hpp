@@ -1,25 +1,31 @@
 #ifndef BITCOINEXCHANGE_HPP
 #define BITCOINEXCHANGE_HPP
 
-#include <iostream>
 #include <map>
 #include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+#include <cstdlib>
+#include <cctype>
 
-class BitcoinExchange {
+class BitcoinExchange
+{
 private:
-    std::map<std::string, float> _database;
+	std::map<std::string, double> _db;
 
-    bool _isValidDate(const std::string& date) const;
-    bool _isValidValue(const std::string& valueStr, float& value) const;
+	bool	isValidDate(const std::string &date) const;
+	bool	parseValue(const std::string &str, double &value) const;
+	void	trim(std::string &s) const;
 
 public:
-    BitcoinExchange();
-    BitcoinExchange(const BitcoinExchange& src);
-    BitcoinExchange& operator=(const BitcoinExchange& rhs);
-    ~BitcoinExchange();
+	BitcoinExchange();
+	BitcoinExchange(const BitcoinExchange &other);
+	BitcoinExchange &operator=(const BitcoinExchange &other);
+	~BitcoinExchange();
 
-    bool loadDatabase(const std::string& filename);
-    void processInput(const std::string& filename) const;
+	bool	loadDatabase(const std::string &file);
+	void	processInput(const std::string &file) const;
 };
 
 #endif

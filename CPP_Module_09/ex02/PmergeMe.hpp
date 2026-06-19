@@ -3,32 +3,35 @@
 
 #include <vector>
 #include <deque>
-#include <string>
-#include <sys/time.h>
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <cctype>
+#include <iomanip>
+#include <algorithm>
 
-class PmergeMe {
+class PmergeMe
+{
 private:
-    std::vector<int> _vec;
-    std::deque<int> _deq;
+	std::vector<int> _vec;
+	std::deque<int> _deq;
 
-    // Helper functions for vector
-    void _fordJohnsonVector(std::vector<int>& arr);
-    void _insertVector(std::vector<int>& mainChain, std::vector<int>& pendingElements, const std::vector<int>& jacobsthal);
-    
-    // Helper functions for deque
-    void _fordJohnsonDeque(std::deque<int>& arr);
-    void _insertDeque(std::deque<int>& mainChain, std::deque<int>& pendingElements, const std::vector<int>& jacobsthal);
+	bool isValidNumber(const std::string &s) const;
 
-    std::vector<int> _generateJacobsthal(int n);
+	template <typename T>
+	void fordJohnsonSort(T &c);
+
+	template <typename T>
+	void binaryInsert(T &mainChain, int value);
 
 public:
-    PmergeMe();
-    PmergeMe(const PmergeMe& src);
-    PmergeMe& operator=(const PmergeMe& rhs);
-    ~PmergeMe();
+	PmergeMe();
+	~PmergeMe();
 
-    bool parseArguments(int argc, char** argv);
-    void process();
+	bool parseInput(int argc, char **argv);
+	void sortAndPrint();
 };
+
+#include "PmergeMe.tpp"
 
 #endif

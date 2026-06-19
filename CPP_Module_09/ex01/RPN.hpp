@@ -3,22 +3,19 @@
 
 #include <string>
 #include <stack>
-#include <list>
+#include <sstream>
+#include <iostream>
+#include <cstdlib>
 
-class RPN {
-private:
-    std::stack<int, std::list<int> > _stack;
-
-    bool _isOperator(const std::string& token) const;
-    int _performOperation(const std::string& op, int a, int b) const;
-
+class RPN
+{
 public:
-    RPN();
-    RPN(const RPN& src);
-    RPN& operator=(const RPN& rhs);
-    ~RPN();
+	RPN();
+	RPN(const RPN &other);
+	RPN &operator=(const RPN &other);
+	~RPN();
 
-    void calculate(const std::string& expression);
+	bool evaluate(const std::string &expr);
 };
 
 #endif

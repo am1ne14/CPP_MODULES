@@ -2,147 +2,220 @@
 #include <fstream>
 #include <sstream>
 #include <cstdlib>
-#include <iomanip>
+#include <cctype>
+#include <iostream>
 
 BitcoinExchange::BitcoinExchange() {}
 
-BitcoinExchange::BitcoinExchange(const BitcoinExchange& src) {
-    *this = src;
+BitcoinExchange::BitcoinExchange(const BitcoinExchange &other)
+{
+	*this = other;
 }
 
-BitcoinExchange& BitcoinExchange::operator=(const BitcoinExchange& rhs) {
-    if (this != &rhs) {
-        this->_database = rhs._database;
-    }
-    return *this;
+BitcoinExchange &BitcoinExchange::operator=(const BitcoinExchange &other)
+{
+	if (this != &other)
+		_db = other._db;
+	return *this;
 }
 
 BitcoinExchange::~BitcoinExchange() {}
 
-bool BitcoinExchange::loadDatabase(const std::string& filename) {
-    std::ifstream file(filename.c_str());
-    if (!file.is_open()) {
-        std::cerr << "Error: could not open database file." << std::endl;
-        return false;
-    }
+void BitcoinExchange::trim(std::string &s) const
+{
+	size_t start = s.find_first_not_of(" \t");
+	size_t end = s.find_last_not_of(" \t");
 
-    std::string line;
-    std::getline(file, line); // Skip header
-
-    while (std::getline(file, line)) {
-        size_t commaPos = line.find(',');
-        if (commaPos != std::string::npos) {
-            std::string date = line.substr(0, commaPos);
-            std::string rateStr = line.substr(commaPos + 1);
-            char* endPtr;
-            float rate = static_cast<float>(std::strtod(rateStr.c_str(), &endPtr));
-            if (*endPtr == '\0' || *endPtr == '\n' || *endPtr == '\r') {
-                _database[date] = rate;
-            }
-        }
-    }
-    file.close();
-    return true;
+	if (start == std::string::npos)
+	{
+		s = "";
+		return;
+	}
+	s = s.substr(start, end - start + 1);
 }
 
-bool BitcoinExchange::_isValidDate(const std::string& date) const {
-    if (date.length() != 10) return false;
-    if (date[4] != '-' || date[7] != '-') return false;
+bool BitcoinExchange::isValidDate(const std::string &date) const
+{
+	if (date.size() != 10)
+		return false;
 
-    for (int i = 0; i < 10; ++i) {
-        if (i == 4 || i == 7) continue;
-        if (!isdigit(date[i])) return false;
-    }
+	if (date[4] != '-' || date[7] != '-')
+		return false;
 
-    int year = std::atoi(date.substr(0, 4).c_str());
-    int month = std::atoi(date.substr(5, 2).c_str());
-    int day = std::atoi(date.substr(8, 2).c_str());
+	for (int i = 0; i < 10; i++)
+	{
+		if (i == 4 || i == 7)
+			continue;
+		if (!std::isdigit(date[i]))
+			return false;
+	}
 
-    if (year < 2009 || month < 1 || month > 12 || day < 1 || day > 31)
-        return false;
+	int y = std::atoi(date.substr(0, 4).c_str());
+	int m = std::atoi(date.substr(5, 2).c_str());
+	int d = std::atoi(date.substr(8, 2).c_str());
 
-    if ((month == 4 || month == 6 || month == 9 || month == 11) && day > 30)
-        return false;
+	if (m < 1 || m > 12)
+		return false;
 
-    if (month == 2) {
-        bool isLeap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
-        if (day > (isLeap ? 29 : 28))
-            return false;
-    }
+	if (d < 1 || d > 31)
+		return false;
 
-    return true;
+	if (m == 4 || m == 6 || m == 9 || m == 11)
+	{
+		if (d > 30)
+			return false;
+	}
+
+	if (m == 2)
+	{
+		bool leap = false;
+
+		if ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0))
+			leap = true;
+
+		if (leap == true)
+		{
+			if (d > 29)
+				return false;
+		}
+		else
+		{
+			if (d > 28)
+				return false;
+		}
+	}
+
+	return true;
 }
 
-bool BitcoinExchange::_isValidValue(const std::string& valueStr, float& value) const {
-    if (valueStr.empty()) return false;
-    char* endPtr;
-    value = static_cast<float>(std::strtod(valueStr.c_str(), &endPtr));
-    if (endPtr == valueStr.c_str()) return false;
-    if (*endPtr != '\0' && *endPtr != 'f') return false; // Basic float check
-    return true;
+bool BitcoinExchange::parseValue(const std::string &str, double &value) const
+{
+	std::istringstream ss(str);
+	ss >> value;
+
+	if (ss.fail())
+		return false;
+
+	if (!ss.eof())
+		return false;
+
+	if (value < 0)
+	{
+		std::cerr << "Error: not a positive number." << std::endl;
+		return false;
+	}
+
+	if (value > 1000)
+	{
+		std::cerr << "Error: too large a number." << std::endl;
+		return false;
+	}
+
+	return true;
 }
 
-void BitcoinExchange::processInput(const std::string& filename) const {
-    std::ifstream file(filename.c_str());
-    if (!file.is_open()) {
-        std::cerr << "Error: could not open file." << std::endl;
-        return;
-    }
+bool BitcoinExchange::loadDatabase(const std::string &file)
+{
+	std::ifstream in(file.c_str());
 
-    std::string line;
-    std::getline(file, line); // Skip header if it is "date | value", but we should just process line by line.
-    if (line != "date | value") {
-        // If the first line is not the exact header, we might want to process it as data
-        // Let's reset stream if it's not the header, but the subject says "date | value" is the header.
-        // I will just ignore it if it equals "date | value".
-    }
+	if (!in)
+	{
+		std::cerr << "Error: could not open database file." << std::endl;
+		return false;
+	}
 
-    while (std::getline(file, line)) {
-        if (line.empty()) continue;
-        if (line == "date | value") continue;
+	std::string line;
+	std::getline(in, line);
 
-        size_t pipePos = line.find(" | ");
-        if (pipePos == std::string::npos) {
-            std::cerr << "Error: bad input => " << line << std::endl;
-            continue;
-        }
+	while (std::getline(in, line))
+	{
+		std::stringstream ss(line);
+		std::string date;
+		std::string rateStr;
 
-        std::string date = line.substr(0, pipePos);
-        std::string valueStr = line.substr(pipePos + 3);
+		if (!std::getline(ss, date, ','))
+			continue;
 
-        if (!_isValidDate(date)) {
-            std::cerr << "Error: bad input => " << date << std::endl;
-            continue;
-        }
+		if (!std::getline(ss, rateStr))
+			continue;
 
-        float value;
-        if (!_isValidValue(valueStr, value)) {
-            std::cerr << "Error: bad input => " << line << std::endl;
-            continue;
-        }
+		trim(date);
+		trim(rateStr);
 
-        if (value < 0) {
-            std::cerr << "Error: not a positive number." << std::endl;
-            continue;
-        }
+		double rate = std::atof(rateStr.c_str());
 
-        if (value > 1000) {
-            std::cerr << "Error: too large a number." << std::endl;
-            continue;
-        }
+		_db[date] = rate;
+	}
 
-        std::map<std::string, float>::const_iterator it = _database.lower_bound(date);
-        
-        if (it != _database.end() && it->first == date) {
-            std::cout << date << " => " << value << " = " << value * it->second << std::endl;
-        } else {
-            if (it == _database.begin()) {
-                std::cerr << "Error: bad input => " << date << std::endl; // Date too early
-            } else {
-                --it;
-                std::cout << date << " => " << value << " = " << value * it->second << std::endl;
-            }
-        }
-    }
-    file.close();
+	return true;
+}
+
+void BitcoinExchange::processInput(const std::string &file) const
+{
+	std::ifstream in(file.c_str());
+
+	if (!in)
+	{
+		std::cerr << "Error: could not open file." << std::endl;
+		return;
+	}
+
+	std::string line;
+	std::getline(in, line);
+
+	while (std::getline(in, line))
+	{
+		if (line.empty())
+			continue;
+
+		size_t pos = line.find('|');
+
+		if (pos == std::string::npos)
+		{
+			std::cerr << "Error: bad input => " << line << std::endl;
+			continue;
+		}
+
+		std::string date = line.substr(0, pos);
+		std::string valueStr = line.substr(pos + 1);
+
+		trim(date);
+		trim(valueStr);
+
+		if (!isValidDate(date))
+		{
+			std::cerr << "Error: bad input => " << line << std::endl;
+			continue;
+		}
+
+		double value;
+
+		if (!parseValue(valueStr, value))
+			continue;
+
+		std::map<std::string, double>::const_iterator it = _db.lower_bound(date);
+
+		if (it == _db.end())
+		{
+			if (_db.size() > 0)
+				--it;
+			else
+			{
+				std::cerr << "Error: empty database" << std::endl;
+				continue;
+			}
+		}
+		else
+		{
+			if (it != _db.begin())
+			{
+				if (it->first != date)
+					--it;
+			}
+		}
+
+		double result = value * it->second;
+
+		std::cout << date << " => " << value << " = " << result << std::endl;
+	}
 }
