@@ -149,8 +149,8 @@ void PmergeMe::run()
 
 	double vecTime = (double)(end - start) / CLOCKS_PER_SEC * 1000000;
 
-	start = clo	fordJohnson(_deq);
-ck();
+	start = clock();
+	fordJohnson(_deq);
 	end = clock();
 
 	double deqTime = (double)(end - start) / CLOCKS_PER_SEC * 1000000;
