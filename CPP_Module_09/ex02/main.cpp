@@ -9,11 +9,14 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	PmergeMe sorter;
+	PmergeMe p;
 
-	if (!sorter.parseInput(argc, argv))
+	if (!p.parse(argc, argv))
+	{
+		std::cerr << "Error" << std::endl;
 		return 1;
+	}
 
-	sorter.sortAndPrint();
+	p.run();
 	return 0;
 }

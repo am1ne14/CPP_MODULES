@@ -5,7 +5,10 @@
 #include <cctype>
 #include <iostream>
 
-BitcoinExchange::BitcoinExchange() {}
+BitcoinExchange::BitcoinExchange()
+{
+
+}
 
 BitcoinExchange::BitcoinExchange(const BitcoinExchange &other)
 {
@@ -50,37 +53,37 @@ bool BitcoinExchange::isValidDate(const std::string &date) const
 			return false;
 	}
 
-	int y = std::atoi(date.substr(0, 4).c_str());
-	int m = std::atoi(date.substr(5, 2).c_str());
-	int d = std::atoi(date.substr(8, 2).c_str());
+	int year = std::atoi(date.substr(0, 4).c_str());
+	int month = std::atoi(date.substr(5, 2).c_str());
+	int day = std::atoi(date.substr(8, 2).c_str());
 
-	if (m < 1 || m > 12)
+	if (month < 1 || month > 12)
 		return false;
 
-	if (d < 1 || d > 31)
+	if (day < 1 || day > 31)
 		return false;
 
-	if (m == 4 || m == 6 || m == 9 || m == 11)
+	if (month == 4 || month == 6 || month == 9 || month == 11)
 	{
-		if (d > 30)
+		if (day > 30)
 			return false;
 	}
 
-	if (m == 2)
+	if (month == 2)
 	{
 		bool leap = false;
 
-		if ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0))
+		if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))
 			leap = true;
 
 		if (leap == true)
 		{
-			if (d > 29)
+			if (day > 29)
 				return false;
 		}
 		else
 		{
-			if (d > 28)
+			if (day > 28)
 				return false;
 		}
 	}
@@ -198,7 +201,7 @@ void BitcoinExchange::processInput(const std::string &file) const
 		if (it == _db.end())
 		{
 			if (_db.size() > 0)
-				--it;
+				it--;
 			else
 			{
 				std::cerr << "Error: empty database" << std::endl;
@@ -210,7 +213,7 @@ void BitcoinExchange::processInput(const std::string &file) const
 			if (it != _db.begin())
 			{
 				if (it->first != date)
-					--it;
+					it--;
 			}
 		}
 

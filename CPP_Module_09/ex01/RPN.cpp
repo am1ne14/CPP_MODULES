@@ -1,13 +1,23 @@
 #include "RPN.hpp"
 
 RPN::RPN() {}
-RPN::~RPN() {}
-RPN::RPN(const RPN &other) { (void)other; }
-RPN &RPN::operator=(const RPN &other) { (void)other; return *this; }
 
-static bool isOperator(const std::string &t)
+RPN::RPN(const RPN &other)
 {
-	return (t == "+" || t == "-" || t == "*" || t == "/");
+	(void)other;
+}
+
+RPN &RPN::operator=(const RPN &other)
+{
+	(void)other;
+	return *this;
+}
+
+RPN::~RPN() {}
+
+static bool isOperator(const std::string &c)
+{
+	return (c == "+" || c == "-" || c == "*" || c == "/");
 }
 
 bool RPN::evaluate(const std::string &expr)
@@ -15,6 +25,9 @@ bool RPN::evaluate(const std::string &expr)
 	std::stack<int> st;
 	std::istringstream ss(expr);
 	std::string token;
+	int	a;
+	int	b;
+	int	res;
 
 	while (ss >> token)
 	{
@@ -30,9 +43,10 @@ bool RPN::evaluate(const std::string &expr)
 				return false;
 			}
 
-			int b = st.top(); st.pop();
-			int a = st.top(); st.pop();
-			int res;
+			b = st.top();
+			st.pop();
+			a = st.top();
+			st.pop();
 
 			if (token == "+")
 				res = a + b;
@@ -40,16 +54,15 @@ bool RPN::evaluate(const std::string &expr)
 				res = a - b;
 			else if (token == "*")
 				res = a * b;
+			else if (token == "/" && b == 0)
+			{
+				std::cerr << "Error \n";
+				return false;
+			}
 			else
 			{
-				if (b == 0)
-				{
-					std::cerr << "Error" << std::endl;
-					return false;
-				}
 				res = a / b;
 			}
-
 			st.push(res);
 		}
 		else
@@ -58,13 +71,11 @@ bool RPN::evaluate(const std::string &expr)
 			return false;
 		}
 	}
-
 	if (st.size() != 1)
 	{
 		std::cerr << "Error" << std::endl;
 		return false;
 	}
-
 	std::cout << st.top() << std::endl;
 	return true;
 }
